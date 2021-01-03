@@ -1,0 +1,11 @@
+{
+    "_description": "This is the test configuration file for BLE api tests.",
+    "testbed": {
+        "single": {
+            "_description": "Testbed with one android device.",
+            "AndroidDevice": ["$dut"]
+        }
+    },
+    "logpath": "/tmp/logs",
+    "testpaths": ["acts/tests/google/ble/api"]
+}
