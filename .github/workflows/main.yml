@@ -24,7 +24,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: acts.zip
-          path: out/acts.zip
+          path: acts.zip
   release:
     needs: build
     runs-on: ubuntu-latest
