@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ acts-work ]
+  pull_request:
+    branches: [ acts-work ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v2
+      - name: Make working directory
+        run: mkdir -p acts_tests
+      - name: Copy release artifacts
+        run: cp -r acts tools acts_tests
+      - name: Zip release artifacts
+        run: zip -r acts.zip acts_tests
+      - name: Upload artifact
+        id: upload_artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: acts.zip
+          path: out/acts.zip
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download Artifact
+        id: download_artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: acts.zip
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload_release_asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./acts.zip
+          asset_name: acts.zip
+          asset_content_type: application/zip
+      - name: Publish Release
+        id: publish_release
+        uses: eregon/publish-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          release_id: ${{ steps.create_release.outputs.id }}
